@@ -1,0 +1,9 @@
+[submodule "build/subspace"]
+	path = build/subspace
+	url = git@github.com:ssiuhk/subspace.git
+[submodule "build/torproxy"]
+	path = build/torproxy
+	url = git@github.com:ssiuhk/torproxy.git
+[submodule "build/dnscrypt-proxy-docker"]
+	path = build/dnscrypt-proxy
+	url = git@github.com:ssiuhk/dnscrypt-proxy-docker.git
