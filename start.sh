@@ -31,7 +31,25 @@ PROJECT_NAME=$(basename `pwd`)
 IFACE="br-$(docker network list | grep "${PROJECT_NAME}_default" | head -1 | awk '{print $1}')"
 
 if command -v firewall-cmd > /dev/null 2>&1; then
-    firewall-cmd --zone=trusted --add-interface ${IFACE}
-    [ $? -eq 0 ] && echo "Added Interface ${IFACE} to Firewall zone 'trusted'"
-    firewall-cmd --permanent --zone=trusted --add-interface ${IFACE}
+    for INTERFACE in wg0 ${IFACE}; do
+	if ! firewall-cmd --zone=trusted --query-interface=${INTERFACE} >/dev/null 2>&1; then
+            firewall-cmd --zone=trusted --add-interface ${INTERFACE} >/dev/null 2>&1
+            [ $? -eq 0 ] && echo "Added Interface ${INTERFACE} to Firewall zone 'trusted'"
+            firewall-cmd --permanent --zone=trusted --add-interface ${INTERFACE} >/dev/null 2>&1
+	fi
+    done
+    for port_proto in "${SUBSPACE_LISTENPORT}/udp" "${SUBSPACE_LISTENPORT}/tcp"; do
+        if ! firewall-cmd --query-port="${port_proto}" >/dev/null 2>&1; then
+            firewall-cmd --add-port "${port_proto}" >/dev/null 2>&1
+            [ $? -eq 0 ] && echo "Added port "${port_proto}" to Firewall"
+            firewall-cmd --permanent --add-port "${port_proto}" >/dev/null 2>&1
+	fi
+    done
+    for service in http https; do
+        if ! firewall-cmd --query-service=${service} > /dev/null 2>&1; then
+            firewall-cmd --add-service ${service} >/dev/null 2>&1
+            [ $? -eq 0 ] && echo "Added ${service} service to Firewall"
+            firewall-cmd --permanent --add-service ${service} >/dev/null 2>&1
+	fi
+    done
 fi
