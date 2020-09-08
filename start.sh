@@ -23,6 +23,8 @@ else
     exit 1
 fi
 
+/usr/local/bin/docker-compose pull
+[ $? -ne 0 ] && /usr/local/bin/docker-compose build # Only build if upstream image not available
 /usr/local/bin/docker-compose up -d
 
 PROJECT_NAME=$(basename `pwd`)
